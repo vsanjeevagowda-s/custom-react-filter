@@ -1,8 +1,8 @@
-
-import React from "react";
+import React, { useContext } from "react";
 import { Row, Col, Form } from "react-bootstrap";
 import Select from "react-select";
 
+import { TableContext } from "../context/TableContext";
 
 const options_1 = [
   { value: "and", label: "AND" },
@@ -28,45 +28,67 @@ const column_3_options_2 = [
 const column_3_options_3 = [{ value: "equals", label: "Equals" }];
 
 const column_4_options_1 = [
-  { value: "Yes", label: "Yes" },
-  { value: "No", label: "No" },
+  { value: true, label: "Yes" },
+  { value: true, label: "No" },
 ];
 
-const CustomSelect = ({ options = [], defaultValue = {} }) => {
-  return <Select options={options} defaultValue={defaultValue} />;
-};
-
-
 const FirstField = ({ index = 0 }) => {
+  const { tableContextFun } = useContext(TableContext);
   if (index === 0) {
     return <Col>Where</Col>;
   } else {
     return (
       <Col>
-        <CustomSelect options={options_1} />
+        <Select
+          onChange={() => {
+            tableContextFun();
+          }}
+          options={options_1}
+        />
       </Col>
     );
   }
 };
 
-const SecondField = ({ condition }) => {
+const SecondField = ({ condition = {}, index = 0 }) => {
+  const { tableContextFun } = useContext(TableContext);
+
   const defaultValue = options_2.filter((opt) => opt.value === condition.id);
   return (
     <Col>
-      <CustomSelect options={options_2} defaultValue={defaultValue} />
+      <Select
+        onChange={(opt) => {
+          tableContextFun({
+            type: "ON_SECOND_FIELD_SELECT",
+            action: { opt, index },
+          });
+        }}
+        options={options_2}
+        value={defaultValue}
+      />
     </Col>
   );
 };
 
-const ThirdField = ({ options = [], condition = {} }) => {
+const ThirdField = ({ options = [], condition = {}, index = 0 }) => {
   const { id = "", operator = "" } = condition;
+  const { tableContextFun } = useContext(TableContext);
   if (["name", "screen_name", "location"].includes(id)) {
     const defaultValue = column_3_options_1.filter(
       (opt) => opt.value === operator
     );
     return (
       <Col>
-        <CustomSelect options={column_3_options_1} defaultValue={defaultValue} />
+        <Select
+          onChange={(opt) => {
+            tableContextFun({
+              type: "ON_THIRD_FIELD_SELECT",
+              action: { opt, index },
+            });
+          }}
+          options={column_3_options_1}
+          value={defaultValue}
+        />
       </Col>
     );
   } else if (["followers_count", "following_count"].includes(id)) {
@@ -75,7 +97,16 @@ const ThirdField = ({ options = [], condition = {} }) => {
     );
     return (
       <Col>
-        <CustomSelect options={column_3_options_2} defaultValue={defaultValue} />
+        <Select
+          onChange={(opt) => {
+            tableContextFun({
+              type: "ON_THIRD_FIELD_SELECT",
+              action: { opt, index },
+            });
+          }}
+          options={column_3_options_2}
+          value={defaultValue}
+        />
       </Col>
     );
   } else {
@@ -84,44 +115,103 @@ const ThirdField = ({ options = [], condition = {} }) => {
     );
     return (
       <Col>
-        <CustomSelect options={column_3_options_3} defaultValue={defaultValue} />
+        <Select
+          onChange={(opt) => {
+            tableContextFun({
+              type: "ON_THIRD_FIELD_SELECT",
+              action: { opt, index },
+            });
+          }}
+          options={column_3_options_3}
+          value={defaultValue}
+        />
       </Col>
     );
   }
 };
 
-const FourthField = ({ condition = {} }) => {
-  const { value } = condition;
-  if (["Yes", "No"].includes(value)) {
+const FourthField = ({ condition = {}, index = 0 }) => {
+  const { tableContextFun } = useContext(TableContext);
+  const { id = "", value = "" } = condition;
+  if (["name", "screen_name", "location"].includes(id)) {
+    return (
+      <Col>
+        <Form.Group>
+          <Form.Control
+            onChange={(e) =>
+              tableContextFun({
+                type: "ON_FOURTH_FIELD_CHANGE",
+                action: e,
+              })
+            }
+            type="text"
+            value={value}
+            placeholder="value"
+          />
+        </Form.Group>
+      </Col>
+    );
+  } else if (["followers_count", "following_count"].includes(id)) {
+    return (
+      <Col>
+        <Form.Group>
+          <Form.Control
+            onChange={(e) =>
+              tableContextFun({
+                type: "ON_FOURTH_FIELD_CHANGE",
+                action: e,
+              })
+            }
+            type="number"
+            value={value}
+            placeholder="value"
+          />
+        </Form.Group>
+      </Col>
+    );
+  } else {
     const defaultValue = column_4_options_1.filter(
       (opt) => opt.value === value
     );
     return (
       <Col>
-        <CustomSelect options={column_4_options_1} defaultValue={defaultValue} />
-      </Col>
-    );
-  } else {
-    return (
-      <Col>
-        <Form.Group>
-          <Form.Control type="text" value={value} placeholder="Password" />
-        </Form.Group>
+        <Select
+          onChange={(opt) => {
+            tableContextFun({
+              type: "ON_FOURTH_FIELD_SELECT",
+              action: { opt, index },
+            });
+          }}
+          className="mb-3"
+          value={defaultValue}
+          options={column_4_options_1}
+        />
       </Col>
     );
   }
 };
 
-const FilterField = ({ condition, index }) => {
+const FilterField = ({ condition = {}, index = 0 }) => {
+  const { tableContextFun } = useContext(TableContext);
   return (
     <React.Fragment>
       <Row>
         <FirstField index={index} />
-        <SecondField condition={condition} />
-        <ThirdField condition={condition} />
-        <FourthField condition={condition} />
+        <SecondField index={index} condition={condition} />
+        <ThirdField index={index} condition={condition} />
+        <FourthField index={index} condition={condition} />
         <Col>
-          <span>Delete</span>
+          <div className="h-75 d-flex flex-row align-items-center">
+            <i
+              class="fa fa-trash cursor-pointer"
+              onClick={() =>
+                tableContextFun({
+                  type: "REMOVE_CONDITION_OBJECT_FROM_CONDITIONS_ARRAY",
+                  action: { index },
+                })
+              }
+            ></i>
+          </div>
         </Col>
       </Row>
     </React.Fragment>

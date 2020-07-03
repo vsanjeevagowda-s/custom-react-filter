@@ -9,21 +9,16 @@ import FilterField from './FilterField'
 const FilterPanel = () => {
 
   const { conditions, tableContextFun } = useContext(TableContext);
-  console.log('frontend','tableContextFun', tableContextFun)
-  console.log('frontend','conditions', conditions)
-  const addConditionField = () => {
-    debugger
-  }
-  
   return (
     <Row>
       <Col>
         <div className="p-4 border my-4">
-          {/* {filterObj.conditions.map((condition, i) => { */}
           {conditions.map((condition, i) => {
             return <FilterField key={i} index={i} condition={condition} />;
           })}
-          <Button onClick={() => addConditionField()}>+ Add Filter</Button>
+          <Button onClick={() => tableContextFun({
+            type: "ADD_FILTER_TEMPLATE_TO_CONDITIONS"
+          })}>+ Add Filter</Button>
         </div>
       </Col>
     </Row>
