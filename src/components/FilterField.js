@@ -1,6 +1,8 @@
 import React, { useContext } from "react";
 import { Row, Col, Form } from "react-bootstrap";
 import Select from "react-select";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 import { TableContext } from "../context/TableContext";
 
@@ -202,15 +204,15 @@ const FilterField = ({ condition = {}, index = 0 }) => {
         <FourthField index={index} condition={condition} />
         <Col>
           <div className="h-75 d-flex flex-row align-items-center">
-            <i
-              class="fa fa-trash cursor-pointer"
+            <FontAwesomeIcon
+              icon={faTrash}
               onClick={() =>
                 tableContextFun({
                   type: "REMOVE_CONDITION_OBJECT_FROM_CONDITIONS_ARRAY",
                   action: { index },
                 })
               }
-            ></i>
+              className="cursor-pointer" />
           </div>
         </Col>
       </Row>
