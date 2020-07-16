@@ -1,8 +1,8 @@
 import React, { useContext } from "react";
 import { Row, Col, Form } from "react-bootstrap";
 import Select from "react-select";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
 import { TableContext } from "../context/TableContext";
 
@@ -35,20 +35,30 @@ const column_4_options_1 = [
 ];
 
 const FirstField = ({ index = 0 }) => {
-  const { tableContextFun } = useContext(TableContext);
+  const { tableContextFun, filterObject } = useContext(TableContext);
   if (index === 0) {
     return <Col>Where</Col>;
-  } else {
+  } else if (index === 1) {
+    const defaultValue = {
+      label: filterObject.mainCondition.id,
+      value: filterObject.mainCondition.value,
+    };
     return (
       <Col>
         <Select
-          onChange={() => {
-            tableContextFun();
+          onChange={(opt) => {
+            tableContextFun({
+              type: "ON_FIRST_FIELD_SELECT",
+              action: { opt, index },
+            });
           }}
+          value={defaultValue}
           options={options_1}
         />
       </Col>
     );
+  } else {
+  return <Col>{filterObject.mainCondition.id}</Col>
   }
 };
 
@@ -56,6 +66,7 @@ const SecondField = ({ condition = {}, index = 0 }) => {
   const { tableContextFun } = useContext(TableContext);
 
   const defaultValue = options_2.filter((opt) => opt.value === condition.id);
+  console.log("defaultValue==>", defaultValue);
   return (
     <Col>
       <Select
@@ -140,10 +151,10 @@ const FourthField = ({ condition = {}, index = 0 }) => {
       <Col>
         <Form.Group>
           <Form.Control
-            onChange={(e) =>
+            onChange={(event) =>
               tableContextFun({
                 type: "ON_FOURTH_FIELD_CHANGE",
-                action: e,
+                action: { event, index },
               })
             }
             type="text"
@@ -212,7 +223,8 @@ const FilterField = ({ condition = {}, index = 0 }) => {
                   action: { index },
                 })
               }
-              className="cursor-pointer" />
+              className="cursor-pointer"
+            />
           </div>
         </Col>
       </Row>
